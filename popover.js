@@ -7,7 +7,11 @@ class PopoverMenu extends HTMLElement {
     static observedAttributes = [
         "button-selector", // the selector that specific the button element
         "placement", // which direction to open the pop over
-        "middlewares", // floating ui middlewares, seperate by ,
+
+        // middlewares
+        "flip", // whether to flip the placement if no enough space,
+        "shift", // whehter to shift the placement if no enough space,
+
         "open-event", // the event to trigger the open the pop over
         "open-delay", // the delay to open the pop over
 
@@ -44,7 +48,14 @@ class PopoverMenu extends HTMLElement {
     }
     
     get middlewares() {
-        return this.getAttribute("middlewares")?.split(",")?.map(s => s.trim()) || [];
+        var middlewares = [];
+        if (this.getAttribute("flip") != null) {
+            middlewares.push(window.FloatingUIDOM.flip());
+        }
+        if (this.getAttribute("shift") != null) {
+            middlewares.push(window.FloatingUIDOM.shift());
+        }
+        return middlewares;
     }
 
 
