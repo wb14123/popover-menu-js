@@ -5,6 +5,7 @@ class PopoverMenu extends HTMLElement {
     #self = this;
 
     static observedAttributes = [
+        "button-selector", // the selector that specific the button element
         "placement", // which direction to open the pop over
         "middlewares", // floating ui middlewares, seperate by ,
         "open-event", // the event to trigger the open the pop over
@@ -31,7 +32,7 @@ class PopoverMenu extends HTMLElement {
     }
 
     get buttonElement() {
-        return this.querySelector("button");
+        return this.querySelector(this.getAttribute("button-selector"));
     }
 
     get contentElement() {
@@ -90,6 +91,16 @@ class PopoverMenu extends HTMLElement {
         this.contentElement.style.display = "none";
     }
 
+    #shouldIgnoreClose(self) {
+        if (!self.closeMouseOnContent && self.#mouseInContent) {
+            return true;
+        }
+        if (!self.closeMouseOnButton && self.#mouseInButton) {
+            return true;
+        }
+        return false;
+    }
+
     connectedCallback() {
         const self = this;
 
@@ -128,14 +139,14 @@ class PopoverMenu extends HTMLElement {
         });
 
         self.closeEventTarget?.addEventListener(self.closeEvent, event => {
+            if (self.#shouldIgnoreClose(self)) {
+                return;
+            }
             if (event.type === self.closeEvent) {
                 setTimeout(() => {
-                    if (!self.closeMouseOnContent && self.#mouseInContent) {
+                    if (self.#shouldIgnoreClose(self)) {
                         return;
-                    }
-                    if (!self.closeMouseOnButton && self.#mouseInButton) {
-                        return;
-                    }
+                    };
                     self.closePopover();
                 }, self.closeDelay);
             }
