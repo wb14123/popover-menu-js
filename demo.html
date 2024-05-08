@@ -4,21 +4,81 @@
         <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.6.1"></script>
         <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.4"></script>
         <script src="popover.js" defer></script>
+
+        <style>
+
+            body {
+                height: 100%;
+                width: 100%;
+            }
+
+            #start-button {
+                margin-top: 60px;
+                margin-left: 20px;
+            }
+
+
+
+            popover-content {
+                background-color: white;
+                border-width: 1px;
+                border-color: black;
+                border-style: groove;
+            }
+
+            .menu-item {
+                width: 100%;
+                display: block;
+            }
+
+        </style>
     </head>
 
-    <body style="height: 100%; width: 100%;">
+    <body>
 
-        <popover-menu button-selector="a" placement="top" flip shift
-            style="margin-top: 60px; margin-left: 20px; display: block;">
 
-            <a href="#">Menu</a>
+        <popover-menu id="start-button" button-selector="a" placement="bottom-start"
+            flip shift open-event="click" close-event="click-button click-other" z-index="2">
+            <a href="#">Start</a>
             <popover-content>
 
-                <div>This is a very very very long content</div>
+                <popover-menu button-selector="a" placement="right-start" flip shift open-event="mouseenter"
+                    close-event="mouseleave click-content" z-idnex="3">
+                    <a class="menu-item">Internet ></a>
+                    <popover-content>
+                        <ul>
+                            <li><a>Firefox</a></li>
+                            <li><a>Chrome</a></li>
+                        </ul>
+                    </popover-content>
+                </popover-menu>
+
+                <popover-menu button-selector="a" placement="right-start" flip shift open-event="mouseenter"
+                    close-event="mouseleave click-content" z-idnex="3">
+                    <a class="menu-item">Games ></a>
+                    <popover-content>
+                        <ul>
+                            <li><a>Spider</a></li>
+                        </ul>
+                    </popover-content>
+                </popover-menu>
+
+                <popover-menu button-selector="a" placement="right-start" flip shift open-event="mouseenter"
+                    close-event="mouseleave click-content" z-idnex="3">
+                    <a class="menu-item">Multi Media ></a>
+                    <popover-content>
+                        <ul>
+                            <li><a>VLC</a></li>
+                            <li><a>Music Player</a></li>
+                        </ul>
+                    </popover-content>
+                </popover-menu>
+
+
 
             </popover-content>
-
         </popover-menu>
+
 
     </body>
 </html>

@@ -16,17 +16,22 @@ class PopoverMenu extends HTMLElement {
         "open-delay", // the delay to open the pop over
 
         /*
-        The event to trigger the close of pop over, in the format of "<event>:<target selector>". Default to "click:window".
+        What event to trigger the popover close. Options:
 
-        For example, if you want the popover to close when click on other places, you can set it to "click::root".
-        Combined with "ignore-close-on-popover" and "ignore-close-on-button", the popover will only get close when
-        the mouse is outside of content or button area.
+        * "click-content": when click the content
+        * "click-button": when click the button
+        * "click-other": when click on anything else than the content and button
+        * "mouseleave": when mouse left both the button and content
+        
+        There can be multiple events at the same time, seperate by space.
         */
         "close-event",
 
-        "close-delay", // the delay to close the pop over
-        "close-mouse-on-button", // still close when mouse is on button
-        "close-mouse-on-content", // still close when mouse is on content
+        /*
+        The delay to close the pop over after mouseleave.
+        If mouse re-enters the element, the close event will be ignored.
+        */
+        "mouse-leave-delay",
     ];
 
     #contentDisplay;
@@ -67,39 +72,21 @@ class PopoverMenu extends HTMLElement {
         return Number(this.getAttribute("open-delay") || "100");
     }
 
-    get closeEvent() {
-        return this.getAttribute("close-event")?.split(':')[0] || "click";
+    get closeEvents() {
+        return new Set(this.getAttribute("close-event")?.split(' ') || ["click-other"]);
     }
 
-    get closeDelay() {
-        return Number(this.getAttribute("close-delay") || "100");
-    }
-
-    get closeEventTarget() {
-        const parseArr = this.getAttribute("close-event")?.split(':');
-        var elem;
-        if (!parseArr?.length || parseArr.length < 2) {
-            elem = ":root";
-        } else {
-            elem = parseArr[1];
-        }
-        return document.querySelector(elem);
-    }
-
-
-    get closeMouseOnButton() {
-        return this.getAttribute("close-mouse-on-button") != null;
-    }
-
-    get closeMouseOnContent() {
-        return this.getAttribute("close-mouse-on-content") != null;
+    get mouseLeaveDelay() {
+        return Number(this.getAttribute("mouse-leave-delay") || "100");
     }
 
     #mouseInContent = false;
     #mouseInButton = false;
+    #popoverOpened = false;
 
     closePopover() {
         this.contentElement.style.display = "none";
+        this.#popoverOpened = false;
     }
 
     #shouldIgnoreClose(self) {
@@ -114,6 +101,10 @@ class PopoverMenu extends HTMLElement {
 
     connectedCallback() {
         const self = this;
+
+        if (self.style.display == null || self.style.display == "") {
+            self.style.display = "block";
+        }
 
         self.#contentDisplay = self.contentElement.style.display;
         self.closePopover();
@@ -132,12 +123,16 @@ class PopoverMenu extends HTMLElement {
         });
 
 
-
         self.buttonElement.addEventListener(self.openEvent, event => {
             if (event.type === self.openEvent) {
                 setTimeout(() => {
+                    // if mouse left the area after open delay, do not open popover
+                    if (self.openEvent === "mouseenter" && !this.#mouseInButton) {
+                        return;
+                    }
                     self.contentElement.style.display = self.#contentDisplay;
                     self.contentElement.style.position = "absolute";
+                    self.#popoverOpened = true;
                     window.FloatingUIDOM.computePosition(self.buttonElement, self.contentElement, {
                         placement: self.placement,
                         middleware: self.middlewares,
@@ -149,19 +144,42 @@ class PopoverMenu extends HTMLElement {
             }
         });
 
-        self.closeEventTarget?.addEventListener(self.closeEvent, event => {
-            if (self.#shouldIgnoreClose(self)) {
-                return;
-            }
-            if (event.type === self.closeEvent) {
+        if (self.closeEvents.has("click-other")) {
+            document.addEventListener("click", event => {
+                if (self.#mouseInButton || self.#mouseInContent) {
+                    return;
+                };
+                self.closePopover();
+            });
+        }
+
+        if (self.closeEvents.has("click-button")) {
+            self.buttonElement.addEventListener("click", event => {
+                self.closePopover();
+            });
+        }
+
+        if (self.closeEvents.has("click-content")) {
+            self.contentElement.addEventListener("click", event => {
+                self.closePopover();
+            });
+        }
+
+        if (self.closeEvents.has("mouseleave")) {
+
+            const mouseLeaveHandler = (event) => {
                 setTimeout(() => {
-                    if (self.#shouldIgnoreClose(self)) {
+                    // mouse has entered the element again, do not close
+                    if (self.#mouseInButton || self.#mouseInContent) {
                         return;
                     };
                     self.closePopover();
-                }, self.closeDelay);
+                }, self.mouseLeaveDelay);
             }
-        });
+
+            self.buttonElement.addEventListener("mouseleave", mouseLeaveHandler);
+            self.contentElement.addEventListener("mouseleave", mouseLeaveHandler);
+        }
 
     }
 
