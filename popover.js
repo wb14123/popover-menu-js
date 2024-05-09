@@ -82,11 +82,17 @@ class PopoverMenu extends HTMLElement {
 
     #mouseInContent = false;
     #mouseInButton = false;
-    #popoverOpened = false;
+    #popoverOpened = true;
+    #cleanup = null;
 
     closePopover() {
-        this.contentElement.style.display = "none";
-        this.#popoverOpened = false;
+        if (this.#popoverOpened) {
+            this.contentElement.style.display = "none";
+            this.#popoverOpened = false;
+        }
+        if (this.#cleanup != null) {
+            this.#cleanup();
+        }
     }
 
     #shouldIgnoreClose(self) {
@@ -133,12 +139,14 @@ class PopoverMenu extends HTMLElement {
                     self.contentElement.style.display = self.#contentDisplay;
                     self.contentElement.style.position = "absolute";
                     self.#popoverOpened = true;
-                    window.FloatingUIDOM.computePosition(self.buttonElement, self.contentElement, {
-                        placement: self.placement,
-                        middleware: self.middlewares,
-                    }).then(({x, y}) => {
-                        self.contentElement.style.left = `${x}px`;
-                        self.contentElement.style.top = `${y}px`;
+                    self.#cleanup = window.FloatingUIDOM.autoUpdate(self.buttonElement, self.contentElement, () => {
+                        window.FloatingUIDOM.computePosition(self.buttonElement, self.contentElement, {
+                            placement: self.placement,
+                            middleware: self.middlewares,
+                        }).then(({x, y}) => {
+                            self.contentElement.style.left = `${x}px`;
+                            self.contentElement.style.top = `${y}px`;
+                        });
                     });
                 }, self.openDelay);
             }
@@ -181,6 +189,14 @@ class PopoverMenu extends HTMLElement {
             self.contentElement.addEventListener("mouseleave", mouseLeaveHandler);
         }
 
+    }
+
+    adoptedCallback() {
+        this.closePopover();
+    }
+
+    disconnectedCallback() {
+        this.closePopover();
     }
 
 }
