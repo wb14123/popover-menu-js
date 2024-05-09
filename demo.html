@@ -1,5 +1,8 @@
+<!DOCTYPE html>
 <html>
     <head>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0" />
 
         <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.6.1"></script>
         <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.4"></script>
@@ -24,7 +27,20 @@
                 border-width: 1px;
                 border-color: black;
                 border-style: groove;
+                padding: 10px 10px 10px 10px;
+                display: flex;
+                flex-direction: column;
             }
+
+            popover-content a {
+                padding: 6px 6px 6px 6px;
+            }
+
+            popover-content a:hover {
+                background-color: gray;
+            }
+
+
 
             .menu-item {
                 width: 100%;
@@ -43,36 +59,34 @@
             <popover-content>
 
                 <popover-menu button-selector="a" placement="right-start" flip shift open-event="mouseenter"
-                    close-event="mouseleave click-content" z-idnex="3">
+                    close-event="mouseleave click-content" z-index="3">
                     <a class="menu-item">Internet ></a>
                     <popover-content>
-                        <ul>
-                            <li><a>Firefox</a></li>
-                            <li><a>Chrome</a></li>
-                        </ul>
+                        <a>Firefox</a>
+                        <a>Chrome</a>
                     </popover-content>
                 </popover-menu>
 
                 <popover-menu button-selector="a" placement="right-start" flip shift open-event="mouseenter"
-                    close-event="mouseleave click-content" z-idnex="3">
+                    close-event="mouseleave click-content" z-index="3">
                     <a class="menu-item">Games ></a>
                     <popover-content>
-                        <ul>
-                            <li><a>Spider</a></li>
-                        </ul>
+                       <a>Spider</a>
+                       <a>Steam</a>
                     </popover-content>
                 </popover-menu>
 
                 <popover-menu button-selector="a" placement="right-start" flip shift open-event="mouseenter"
-                    close-event="mouseleave click-content" z-idnex="3">
+                    close-event="mouseleave click-content" z-index="3">
                     <a class="menu-item">Multi Media ></a>
                     <popover-content>
-                        <ul>
-                            <li><a>VLC</a></li>
-                            <li><a>Music Player</a></li>
-                        </ul>
+                        <a>VLC</a>
+                        <a>Music Player</a>
                     </popover-content>
                 </popover-menu>
+
+                <a>About</a>
+                <a>Exit</a>
 
 
 
