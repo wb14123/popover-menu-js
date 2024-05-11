@@ -89,6 +89,7 @@ class PopoverMenu extends HTMLElement {
         if (this.#popoverOpened) {
             this.contentElement.style.display = "none";
             this.#popoverOpened = false;
+            this.dispatchEvent(new Event("popover-closed"));
         }
         if (this.#cleanup != null) {
             this.#cleanup();
@@ -139,6 +140,7 @@ class PopoverMenu extends HTMLElement {
                     self.contentElement.style.display = self.#contentDisplay;
                     self.contentElement.style.position = "absolute";
                     self.#popoverOpened = true;
+                    self.dispatchEvent(new Event("popover-opened"));
                     self.#cleanup = window.FloatingUIDOM.autoUpdate(self.buttonElement, self.contentElement, () => {
                         window.FloatingUIDOM.computePosition(self.buttonElement, self.contentElement, {
                             placement: self.placement,
