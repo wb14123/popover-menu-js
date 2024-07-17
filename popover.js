@@ -32,6 +32,9 @@ class PopoverMenu extends HTMLElement {
         If mouse re-enters the element, the close event will be ignored.
         */
         "mouse-leave-delay",
+
+        /* set the display style for content. Override the display attribute if defined. */
+        "content-display",
     ];
 
     #contentDisplay;
@@ -113,7 +116,12 @@ class PopoverMenu extends HTMLElement {
             self.style.display = "block";
         }
 
-        self.#contentDisplay = self.contentElement.style.display;
+        const contentDisplayDef = self.getAttribute('content-display');
+        if (contentDisplayDef != null && contentDisplayDef != "") {
+            self.#contentDisplay = contentDisplayDef;
+        } else {
+            self.#contentDisplay = self.contentElement.style.display;
+        }
         self.closePopover();
 
         self.buttonElement.addEventListener('mouseenter', event => {
